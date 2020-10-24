@@ -1,0 +1,96 @@
+extends layout
+block content
+  .ui.container
+    .ui.basic.center.aligned.segment
+      <div class="ui huge header">Behind The Scenes: A Closer Look! - prod azeez.</div>
+
+              
+  <center>
+  h2 Hi there, and welcome! Behind The Scenes partners with Netflix, imdB and Twitter APIS to provide:
+
+  <div class="ui middle aligned animated list">
+    <div class="item">
+      <img class="ui avatar image" src="https://www.flaticon.com/svg/static/icons/svg/786/786024.svg">
+      <div class="content">
+        <div class="header">info about the latest films!</div>
+      </div>
+    </div>
+    <div class="item">
+      <img class="ui avatar image" src="https://www.flaticon.com/premium-icon/icons/svg/2504/2504929.svg">
+      <div class="content">
+        <div class="header">Netflix availabity!</div>
+      </div>
+    </div>
+    <div class="item">
+      <img class="ui avatar image" src="https://www.flaticon.com/svg/static/icons/svg/145/145812.svg">
+      <div class="content">
+        <div class="header">and a quick look at popular tweets!</div>
+      </div>
+    </div>
+  </div>
+
+  h1 <br>To get started, select a film from iMdb's Top Trending Movies and take a closer look!<p><p>
+
+  </center>
+  
+  <center>
+
+  
+  button.Title <i>#{respo[0].title} (#{respo[0].year})</i>
+  button.Title <i>#{respo[1].title} (#{respo[1].year})</i>
+  button.Title <i>#{respo[2].title} (#{respo[2].year})</i>
+  button.Title <i>#{respo[3].title} (#{respo[3].year})</i>
+  button.Title <i>#{respo[4].title} (#{respo[4].year})</i>
+  button.Title <i>#{respo[5].title} (#{respo[5].year})</i>
+  button.Title <i>#{respo[6].title} (#{respo[6].year})</i>
+  button.Title <i>#{respo[7].title} (#{respo[7].year})</i>          
+  button.Title <i>#{respo[8].title} (#{respo[8].year})</i>
+  button.Title <i>#{respo[9].title} (#{respo[9].year})</i>
+  button.Title <i>#{respo[10].title} (#{respo[10].year})</i>
+  button.Title <i>#{respo[11].title} (#{respo[11].year})</i>
+  
+
+  <br><br>
+
+  <div class="ui basic segment">
+    <div class="ui two column very relaxed hidden grid">
+      <div class="column">
+
+        h1 <div id="image" style="float:right"></div>
+
+      </div>
+      <div class="column">
+
+        <br>
+        
+        h1 <div id="shoe"></div><div id="boot"></div>
+
+        h1 <div id="available"></div>
+
+
+
+      </div>
+    </div>
+    <div class="ui hidden vertical divider">
+    </div>
+  </div>
+
+
+
+
+  
+  h1 <div id="tweet1"></div>
+  //- <br><img class="ui avatar image" src="https://www.flaticon.com/svg/static/icons/svg/145/145812.svg">
+  h1 <div id="tweet2"></div>
+  //- <br><img class="ui avatar image" src="https://www.flaticon.com/svg/static/icons/svg/145/145812.svg">
+  h1 <div id="tweet3"></div>
+  //- <br><img class="ui avatar image" src="https://www.flaticon.com/svg/static/icons/svg/145/145812.svg">
+  h1 <div id="tweet4"></div>
+  </center>
+
+
+
+  <script id="gg" src="javascripts/posters.js" redirectUrl ="#{JSON.stringify(respo)}"></script>
+  <script id="gg2" src="javascripts/description.js" redirectUrl2 ="#{JSON.stringify(respo)}"></script>  
+  <script id="gg3" src="javascripts/netflix.js" redirectUrl3 ="#{JSON.stringify(respo)}"></script>  
+  <script id="gg4" src="javascripts/twitter.js" redirectUrl4 ="#{JSON.stringify(respo)}"></script>  

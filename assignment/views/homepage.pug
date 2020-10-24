@@ -1,0 +1,26 @@
+extends layout
+block content
+
+    title Homepage
+    p
+    img.ui.centered.small.image(src='https://www.flaticon.com/svg/static/icons/svg/879/879528.svg')
+
+    br
+    .ui.container
+        .ui.basic.center.aligned.segment
+
+            form.ui.form(action='/result', method='get')
+                h4.ui.dividing.medium.header Enter your search details below. We'll handle the rest.
+                .fields
+                    .eight.wide.field
+                        input(type='text' name='keywords' id ='keywords' placeholder='Pokemon')
+                    .four.wide.field
+                        select.ui.search.dropdown(name='limit' id='limit')
+                            option(value=10000) 50000
+                            option(value=10000) 10000
+                            option(value=2000) 2000
+                            option(value=1000) 1000
+                            
+                    button.form-control.btn.btn-success.btn-block.submit-btn(type='submit')
+                        .ui.small.button(type='submit') Analyse The Sentiment!
+

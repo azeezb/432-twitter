@@ -1,0 +1,256 @@
+extends layout
+
+block content
+    //- .ui.container
+    title Results
+    p
+    img.ui.centered.tiny.image(src='https://www.flaticon.com/svg/static/icons/svg/879/879528.svg')
+
+    br
+    .ui.basic.center.aligned.segment
+        .page-header 
+            .ui.huge.header Word Cloud
+            #cloud.text-center
+            //- script#ggg(src='javascripts/tweeets.js' redirecturl5=#{JSON.stringify(tweets)})
+            //- <script id="ggg" src="javascripts/tweeets.js" redirectUrl5 ="#{JSON.stringify(tweets.slice(0, 98))}"></script>  
+
+        .page-header 
+            br 
+            .ui.huge.header Sentiment Chart
+            //- canvas#chart
+            #my_dataviz
+            //- #my_dataviz2
+        .page-header
+            .ui.huge.header Real-time Tweets
+            .table-overflow
+            table#tweets-table.table.table-hover.table-bordered.table-striped
+                thead
+                tr
+                    th Date
+                    th User
+                    th Tweet
+                tbody
+                each tweet in tweets
+                    tr
+                    td=tweet.created_at
+                    td=tweet.user.screen_name
+                    td=tweet.text
+                else
+                    tr 
+                    td No real-time tweet yet, only tweet archive is analyzed
+                    td
+                    td
+
+    script.
+        var cloudData = !{ wordCloudData };
+        var chartData = !{ chartData };
+        var fillColor = d3.scale.category20();
+
+        //- var tweets = !{ tweets }
+
+        var w = 800, h = 450;
+        var cloud = d3.layout.cloud();
+        //- var myChart = initChart(chartData);
+
+        initCloud(cloudData);
+        YNGraph(chartData[0], chartData[1])
+
+        //- console.log(tweet)
+
+
+
+  
+
+        setTimeout(updateData(), 5000);
+
+
+        function initCloud(words) {
+        cloud.size([w, h])
+            .words(words.map((d) => {
+            return { text: d, size: 20 + Math.random() * 90 }
+            }))
+            .padding(5)
+            .rotate(function () { return ~~(Math.random() * 2) * 90; })
+            .font("Impact")
+            .fontSize(function (d) { return d.size; })
+            .on("end", drawCloud)
+            .start();
+        }
+
+        function drawCloud(words) {
+        d3.select("svg").remove();
+        d3.select("#cloud").append("svg")
+            .attr("width", w)
+            .attr("height", h)
+            .append("g")
+            .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")")
+            .selectAll("text")
+            .data(words)
+            .enter().append("text")
+            .style("font-size", function (d) { return (d.size) + "px"; })
+            .style("font-family", "Impact")
+            .style("fill", function (d, i) { return fillColor(i); })
+            .attr("text-anchor", "middle")
+            .attr("transform", function (d, i) {
+            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            }
+            )
+            .text(function (d) { return d.text; });
+        }
+
+
+
+
+        function refreshTable(tableId, tweets) {
+        var rows = '';
+        if (tweets.length > 0) {
+            $.each(tweets, function(index, tweet) {
+                var row = '<tr>';
+                row += '<td>' + tweet.created_at + '</td>';
+                row += '<td>' + tweet.user.screen_name + '</td>';
+                row += '<td>' + tweet.text + '</td>';
+                rows += row + '<tr>';
+            });
+            $('#' + tableId + ' tbody').html(rows);
+        }
+        }
+
+
+        function YNGraph(Yes, No) {
+
+            d3.selectAll("#my_dataviz > *").remove(); 
+
+            var max;
+
+            if (Yes > No){
+                max = Yes;
+            } else {max = No};
+
+
+            // set the dimensions and margins of the graph
+            var margin = {top: 10, right: 30, bottom: 90, left: 40},
+                width = 460 - margin.left,
+                height = 450 - margin.top - margin.bottom;
+
+            // append the svg object to the body of the page
+            var svg = d3.select("#my_dataviz").append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+            d3.json("/data/sentiments.json", function(data1) {
+            // X axis
+            var x = d3.scaleBand()
+                .range([ 0, width ])
+                .domain(data1.map(function(d1) { ; return d1.status; }))
+                .padding(0.2);
+            svg.append("g")
+                .style("font", "20px times")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .selectAll("text")
+                    .attr("transform", "translate(0,0)rotate(0)")
+                    .style("text-anchor", "center");
+
+            // Add Y axis
+            var y = d3.scaleLinear()
+                .domain([0,  max + max*0.1])
+                .range([ height, 0]);
+            svg.append("g")
+                .call(d3.axisLeft(y));
+
+            // Bars
+            svg.selectAll("mybar")
+                .data(data1)
+                .enter()
+                .append("rect")
+                    .attr("x", function(d1) { return x(d1.status); })
+                    .attr("width", x.bandwidth())
+                    .attr("fill", "#5b61b5")
+                    // no bar at the beginning thus:
+                    .attr("height", function(d1) { return height - y(0); }) // always equal to 0
+                    .attr("y", function(d1) { return y(0); })
+
+            // Animation
+            svg.selectAll("rect")
+                .transition()
+                .duration(800)
+                .attr("y", function(d1) { return y(d1.amount); })
+                .attr("height", function(d1) { return height - y(d1.amount); })
+                .delay(function(d1,i){return(i*100)})
+
+            })
+                
+
+
+
+
+            //- // Parse the Data
+            //- d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv", function(data) {
+            
+            //- // X axis
+            //- var x = d3.scaleBand()
+            //-     .range([ 0, width ])
+            //-     .domain(data.map(function(d) { ; return d.Country; }))
+            //-     .padding(0.2);
+            //- svg.append("g")
+            //-     .attr("transform", "translate(0," + height + ")")
+            //-     .call(d3.axisBottom(x))
+            //-     .selectAll("text")
+            //-         .attr("transform", "translate(-10,0)rotate(-45)")
+            //-         .style("text-anchor", "end");
+
+            //- // Add Y axis
+            //- var y = d3.scaleLinear()
+            //-     .domain([0,  max + max*0.1])
+            //-     .range([ height, 0]);
+            //- svg.append("g")
+            //-     .call(d3.axisLeft(y));
+
+            //- // Bars
+            //- svg.selectAll("mybar")
+            //-     .data(data)
+            //-     .enter()
+            //-     .append("rect")
+            //-         .attr("x", function(d) { return x(d.Country); })
+            //-         .attr("width", x.bandwidth())
+            //-         .attr("fill", "#69b3a2")
+            //-         // no bar at the beginning thus:
+            //-         .attr("height", function(d) { return height - y(0); }) // always equal to 0
+            //-         .attr("y", function(d) { return y(0); })
+
+            //- // Animation
+            //- svg.selectAll("rect")
+            //-     .transition()
+            //-     .duration(800)
+            //-     .attr("y", function(d) { return y(d.Value); })
+            //-     .attr("height", function(d) { return height - y(d.Value); })
+            //-     .delay(function(d,i){return(i*100)})
+
+            //- })  
+        }
+
+
+        function updateData() {
+            setInterval(function () {
+                $.ajax({
+                "url": '/intervalData',
+                "success": function (data) {
+                    //console.log(data.chartData);
+                    //- initCloud(data.wordCloudData);
+                    //- refreshChart(data.chartData);
+                    YNGraph(data.chartData[0], data.chartData[1])
+                    refreshTable('tweets-table', data.tweets);
+                    tweets = data.tweets;
+                },
+                "error": function (error) {
+                }
+                })
+            }, 5 * 1000);
+        }
+
+

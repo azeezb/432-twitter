@@ -1,0 +1,62 @@
+
+head {    
+    margin: 0 !important;
+    padding: 0 !important;
+}
+body {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  padding: 75px;
+  font: 20px "Lato", Helvetica, Arial, sans-serif;
+}
+
+.ui.menu {
+    border-radius: 0px !important;
+}
+
+
+
+.form{
+    margin-left: auto;
+    margin-right:auto;
+}
+
+
+a {
+  color: #00B7FF;
+}
+
+.item {
+  margin: 20px 0;
+}
+
+.detail {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: 'Lato', sans-serif;
+  color: rgb(153, 0, 0);
+  cursor: pointer;
+  font-size: 60px;
+}
+
+button {
+  background: none;
+  border: none;
+  font-family: 'Lato', sans-serif;
+  display: inline-block;
+  padding: 30;
+  width: 200px;
+  height: 0px;
+  color: #069;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+button:hover {
+  text-decoration: underline;
+}
+
+

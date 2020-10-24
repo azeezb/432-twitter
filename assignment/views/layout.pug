@@ -1,0 +1,32 @@
+doctype html
+html
+  head 
+    .ui.grey.attached.inverted.segment
+        .ui.grey.inverted.secondary.menu
+            a.item
+                | Created for CAB432: Cloud Computing
+            a.right.item
+                | Azeez
+            a.item
+                | AbdulRahman
+            a.item
+                | 2020
+    
+    
+    script(src="http://d3js.org/d3.v3.min.js" charset="utf-8")
+    script(src='https://d3js.org/d3.v4.js'  charset="utf-8")
+    script(src='http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js')
+    script(type='text/javascript' src='https://www.gstatic.com/charts/loader.js')
+
+    script(src='/javascripts/d3.layout.cloud.js')
+    script(src='/javascripts/chartjs/Chart.min.js')
+    script(src='/javascripts/jquery-3.1.1.min.js')
+
+    link(rel='icon', href='https://www.flaticon.com/svg/static/icons/svg/879/879528.svg')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css')
+    link(rel='stylesheet', href='/stylesheets/style.css') 
+    link(href='http://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css')
+  
+  body    
+    .centered
+        block content

@@ -1,0 +1,24 @@
+extends layout
+block content
+
+    title Welcome
+    p
+    img.ui.centered.medium.image(src='https://www.flaticon.com/svg/static/icons/svg/879/879528.svg')
+
+    br
+
+    .ui.container
+        .ui.basic.center.aligned.segment
+            .ui.huge.header TwitterSphere: A Closer Look! - prod azeez and abdulrahman
+                
+    center 
+        h3 Click below to assess some tweets! 
+            br
+            p
+            a.btn.btn-success.btn-lg(href='/homepage', role='button')
+                .ui.animated.huge.button(tabindex='0')
+                    .visible.content Lets Go! 
+                    .hidden.content
+                        i.right.arrow.icon
+
+
