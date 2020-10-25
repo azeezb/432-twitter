@@ -2,7 +2,11 @@ const Twit = require('twit');
 const analyze = require('Sentimental').analyze;
 const fs = require("fs");
 const _ = require('lodash');
-const ObjectsToCsv = require('objects-to-csv')
+const stopwords = require('nltk-stopwords')
+const sw = require('stopword')
+const mostCommon = require('most-common');
+const countWordsArray = require("count-words-array");
+const { names } = require('debug');
 
 /**
  * Create a twitter stream helper
@@ -20,14 +24,67 @@ var keywords = null;
 var tweets = [];
 var analysisResult = [];
 
+var first=null;
+var second=null;
+var third=null;
+var fourth=null;
+var fifth=null;
+var superstring;
 
 
-var WCDee = null;
+
+const stopwordslit = ["i", "me", "https", "my", "RT", "myself", "we", "our", "ours", "ourselves", "you", "your", "yours", "yourself", "yourselves", "he", "him", "his", "himself", "she", "her", "hers", "herself", "it", "its", "itself", "they", "them", "their", "theirs", "themselves", "what", "which", "who", "whom", "this", "t", "that", "these", "those", "am", "is", "are", "was", "were", "be", "been", "being", "have", "has", "had", "having", "do", "does", "did", "doing", "a", "an", "the", "and", "but", "if", "or", "because", "as", "until", "while", "of", "at", "by", "for", "with", "about", "against", "between", "into", "through", "during", "before", "after", "above", "below", "to", "from", "up", "down", "in", "out", "on", "off", "over", "under", "again", "further", "then", "once", "here", "there", "when", "where", "why", "how", "all", "any", "both", "each", "few", "more", "most", "other", "some", "such", "no", "nor", "not", "only", "own", "same", "so", "than", "too", "very", "s", "t", "can", "will", "just", "don", "should", "now"]
+
+// var WCDee = null;
 var WDee = null;
 
 
-function commontweet(tweets) {
-    console.log("This is..." + tweets[0]);
+function commontweet(tweets, total) {
+
+    console.log('NUMBER OF TWEETS ' + tweets.length)
+
+    for (let i = 1; i < tweets.length; i++) {
+        superstring = superstring + ' ' + tweets[i].text;
+    }    
+
+    // console.log(superstring)
+
+    var ranked = countWordsArray(superstring)
+
+    // console.log(ranked)
+
+    var namez = ranked.map(function(a) {return a.name;});
+    var numberz = ranked.map(function(a) {return a.count;});
+    
+    // console.log(namez);
+    // console.log(numberz)
+
+
+
+
+    var counter=0;
+    for (let i = 2; i < namez.length; i++) {
+        var n = stopwordslit.includes(namez[i]);
+        // if (n == false && namez[i].length > 4 && namez[i].length !== keywords) {
+        if (n == false && namez[i].length > 4) {
+
+            // console.log(namez[i])
+            if(counter == 0){first = JSON.stringify([namez[i], numberz[i]])}
+            if(counter == 1){second = JSON.stringify([namez[i], numberz[i]])}
+            if(counter == 2){third = JSON.stringify([namez[i], numberz[i]])}
+            if(counter == 3){fourth = JSON.stringify([namez[i], numberz[i]])}
+            if(counter == 4){fifth = JSON.stringify([namez[i], numberz[i]])}           
+            counter++;
+        }
+        if (counter == 5){break;} 
+    }
+
+    console.log(first);
+    console.log(second);
+    console.log(third);
+    console.log(fourth);
+    console.log(fifth);
+
 }
 
 
@@ -42,23 +99,42 @@ exports.result = (req, res) => {
   if (keywords && stream) {
     stream.stop();
   }
+
   keywords = req.query.keywords;
+
+  console.log(typeof keywords)
+
+  
   let limit = req.query.limit;
   tweets = [];
   analysisResult = [];
 
+
+
+  const blanksearch = 'Election';
+
+  console.log('KEYWORD: ' + keywords.length)
+
+  
   // If no keyword specified, use sample endpoint instead
-  if (keywords.length > 0)
-    stream = T.stream('statuses/filter', { track: keywords });
+  if (keywords.length < 1)
+    stream = T.stream('statuses/filter', { track: blanksearch });
   else
-    stream = T.stream('statuses/sample', { language: 'en' });
+    stream = T.stream('statuses/filter', { track: keywords });
+
+  console.log('KEYWORD: ' + keywords)
+
+
+
+
+
 
   stream.on('tweet', (tweet) => {
     // Place the newest tweet in the first index
     tweets.unshift(tweet);
 
     // Only store the most recent 300 tweets streamed
-    if (tweets.length > 300) {
+    if (tweets.length > limit) {
       tweets.pop();
     }
 
@@ -73,6 +149,7 @@ exports.result = (req, res) => {
     stream.stop();
   });
   
+
   // Start analyzing streamed tweets after specified seconds
   setTimeout(() => {
     tweets.forEach(function (tweet) {
@@ -92,28 +169,45 @@ exports.result = (req, res) => {
 
 
 
-            var WCDee = JSON.stringify(createWordCloudDataset(analysisResult).slice(0, 30));
+            ///////////////////////////////////////////////////////
+                                    //STREAM VALUE TO STORE
+            //////////////////////////////////////////////////////
+            // console.log(analysisResult);
+
+
+ 
             var WDee = JSON.stringify(createSentimentChartDatset(analysisResult));
             
             data = '[{"status":"Positive","amount":'+parseInt(positive)+'},{"status":"Negative","amount":'+parseInt(negative)+'}]'
 
             console.log("RESULT:" + positive + ", " + negative)
 
+            var total = positive + negative
+
+         
+            // TWEET FREQUENCY ANALYSIS
+            commontweet(tweets, total);
+              
 
             fs.writeFile("../asgn2/public/data/sentiments.json", data, function(err, result) {
                 if(err) console.log('error', err);
             });
 
 
-            commontweet(tweets);
             
             res.render('result', {
               keywords: keywords,
               limit: limit,
-              wordCloudData: WCDee,
+              total: total,
+            //   wordCloudData: WCDee,
               chartData: WDee,
-              tweets: tweets
-              
+              tweets: tweets,
+              first: first,
+              second: second,
+              third: third,
+              fourth: fourth,
+              fifth: fifth
+
             });
           });
       })
@@ -121,35 +215,6 @@ exports.result = (req, res) => {
         console.log('Error: ', error);
       });
   }, 5 * 1000);
-};
-
-/**
- * Endpoint for receiving updated data
- * Called after intial result is shown
- */
-exports.intervalData = (req, res) => {
-  let chartData = createSentimentChartDatset(analysisResult);
-  let wordCloudData = createWordCloudDataset(analysisResult).slice(0, 30);
-  let streamedTweets = tweets;
-
-  res.json({
-    chartData: chartData,
-    wordCloudData: wordCloudData,
-    tweets: streamedTweets
-  });
-}
-
-/**
- * Generate and return a non-duplicate array for word cloud based on analysed sentimental result
- * @param {*array} result 
- */
-var createWordCloudDataset = (analysisResult) => {
-  let array = [];
-  analysisResult.forEach(function (element) {
-    array = array.concat(element.positive.words, element.negative.words);
-  }, this);
-
-  return _.uniq(array);
 };
 
 var positive = 0;

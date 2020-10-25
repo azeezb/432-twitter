@@ -8,111 +8,57 @@ block content
 
     br
     .ui.basic.center.aligned.segment
-        .page-header 
-            .ui.huge.header Word Cloud
-            #cloud.text-center
-            //- script#ggg(src='javascripts/tweeets.js' redirecturl5=#{JSON.stringify(tweets)})
-            //- <script id="ggg" src="javascripts/tweeets.js" redirectUrl5 ="#{JSON.stringify(tweets.slice(0, 98))}"></script>  
+        .page-header(style='display: inline-block; margin: 0 auto;')
+            .ui.huge.header Your Results!
+            h1 In total, we assessed a grand total of #{total} tweets!
 
-        .page-header 
-            br 
-            .ui.huge.header Sentiment Chart
-            //- canvas#chart
-            #my_dataviz
-            //- #my_dataviz2
-        .page-header
-            .ui.huge.header Real-time Tweets
-            .table-overflow
-            table#tweets-table.table.table-hover.table-bordered.table-striped
-                thead
+
+        table
+            tbody
                 tr
-                    th Date
-                    th User
-                    th Tweet
-                tbody
-                each tweet in tweets
-                    tr
-                    td=tweet.created_at
-                    td=tweet.user.screen_name
-                    td=tweet.text
-                else
-                    tr 
-                    td No real-time tweet yet, only tweet archive is analyzed
-                    td
-                    td
+                td
+                    #piechart
+                td  
+                    h2 A Sentimental Bar Graph!
+                    #my_dataviz
 
     script.
-        var cloudData = !{ wordCloudData };
         var chartData = !{ chartData };
+        var first = !{ first };
+        var second = !{ second };
+        var third = !{ third };
+        var fourth = !{ fourth };
+        var fifth = !{ fifth };
         var fillColor = d3.scale.category20();
 
-        //- var tweets = !{ tweets }
+
 
         var w = 800, h = 450;
-        var cloud = d3.layout.cloud();
-        //- var myChart = initChart(chartData);
 
-        initCloud(cloudData);
         YNGraph(chartData[0], chartData[1])
 
-        //- console.log(tweet)
+
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var data = google.visualization.arrayToDataTable([
+            ['Word', 'Appearance %'],
+            first,
+            second,
+            third,
+            fourth,
+            fifth
+        ]);
 
 
+            // Optional; add a title and set the width and height of the chart
+            var options = { legend: {alignment: 'center', position: 'top'},'width':800, 'height':900, 'slices': {  0: {offset: 0.2}}};
 
-  
-
-        setTimeout(updateData(), 5000);
-
-
-        function initCloud(words) {
-        cloud.size([w, h])
-            .words(words.map((d) => {
-            return { text: d, size: 20 + Math.random() * 90 }
-            }))
-            .padding(5)
-            .rotate(function () { return ~~(Math.random() * 2) * 90; })
-            .font("Impact")
-            .fontSize(function (d) { return d.size; })
-            .on("end", drawCloud)
-            .start();
-        }
-
-        function drawCloud(words) {
-        d3.select("svg").remove();
-        d3.select("#cloud").append("svg")
-            .attr("width", w)
-            .attr("height", h)
-            .append("g")
-            .attr("transform", "translate(" + w / 2 + "," + h / 2 + ")")
-            .selectAll("text")
-            .data(words)
-            .enter().append("text")
-            .style("font-size", function (d) { return (d.size) + "px"; })
-            .style("font-family", "Impact")
-            .style("fill", function (d, i) { return fillColor(i); })
-            .attr("text-anchor", "middle")
-            .attr("transform", function (d, i) {
-            return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-            }
-            )
-            .text(function (d) { return d.text; });
-        }
-
-
-
-
-        function refreshTable(tableId, tweets) {
-        var rows = '';
-        if (tweets.length > 0) {
-            $.each(tweets, function(index, tweet) {
-                var row = '<tr>';
-                row += '<td>' + tweet.created_at + '</td>';
-                row += '<td>' + tweet.user.screen_name + '</td>';
-                row += '<td>' + tweet.text + '</td>';
-                rows += row + '<tr>';
-            });
-            $('#' + tableId + ' tbody').html(rows);
-        }
+            // Display the chart inside the <div> element with id="piechart"
+            var container = document.getElementById('piechart');
+            var chart = new google.visualization.PieChart(container);
+            chart.draw(data, options);
         }
 
 
@@ -122,6 +68,7 @@ block content
 
             var max;
 
+            // set up range for the graph 
             if (Yes > No){
                 max = Yes;
             } else {max = No};
@@ -141,7 +88,7 @@ block content
                         "translate(" + margin.left + "," + margin.top + ")");
 
 
-
+            // call the saved json
             d3.json("/data/sentiments.json", function(data1) {
             // X axis
             var x = d3.scaleBand()
@@ -184,73 +131,5 @@ block content
                 .delay(function(d1,i){return(i*100)})
 
             })
-                
-
-
-
-
-            //- // Parse the Data
-            //- d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/7_OneCatOneNum_header.csv", function(data) {
-            
-            //- // X axis
-            //- var x = d3.scaleBand()
-            //-     .range([ 0, width ])
-            //-     .domain(data.map(function(d) { ; return d.Country; }))
-            //-     .padding(0.2);
-            //- svg.append("g")
-            //-     .attr("transform", "translate(0," + height + ")")
-            //-     .call(d3.axisBottom(x))
-            //-     .selectAll("text")
-            //-         .attr("transform", "translate(-10,0)rotate(-45)")
-            //-         .style("text-anchor", "end");
-
-            //- // Add Y axis
-            //- var y = d3.scaleLinear()
-            //-     .domain([0,  max + max*0.1])
-            //-     .range([ height, 0]);
-            //- svg.append("g")
-            //-     .call(d3.axisLeft(y));
-
-            //- // Bars
-            //- svg.selectAll("mybar")
-            //-     .data(data)
-            //-     .enter()
-            //-     .append("rect")
-            //-         .attr("x", function(d) { return x(d.Country); })
-            //-         .attr("width", x.bandwidth())
-            //-         .attr("fill", "#69b3a2")
-            //-         // no bar at the beginning thus:
-            //-         .attr("height", function(d) { return height - y(0); }) // always equal to 0
-            //-         .attr("y", function(d) { return y(0); })
-
-            //- // Animation
-            //- svg.selectAll("rect")
-            //-     .transition()
-            //-     .duration(800)
-            //-     .attr("y", function(d) { return y(d.Value); })
-            //-     .attr("height", function(d) { return height - y(d.Value); })
-            //-     .delay(function(d,i){return(i*100)})
-
-            //- })  
         }
-
-
-        function updateData() {
-            setInterval(function () {
-                $.ajax({
-                "url": '/intervalData',
-                "success": function (data) {
-                    //console.log(data.chartData);
-                    //- initCloud(data.wordCloudData);
-                    //- refreshChart(data.chartData);
-                    YNGraph(data.chartData[0], data.chartData[1])
-                    refreshTable('tweets-table', data.tweets);
-                    tweets = data.tweets;
-                },
-                "error": function (error) {
-                }
-                })
-            }, 5 * 1000);
-        }
-
 
